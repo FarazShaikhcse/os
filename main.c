@@ -1,57 +1,91 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
+#include<stdlib.h>
 #include<unistd.h>
-
-struct process
+int nor,nof;
+int ref[20];
+int fr[20];
+int optindex[10];
+int optimal(int index)
 {
-
-    int bt;
-    int wt;
-    int tt;
-    int pno;
-}p[10];
-
+    int pos;
+    for(int i=0;i<nof;i++)
+    {
+        int notfound=1;
+        for(int j=index+1;j<nor;j++)
+        {
+            if(fr[i]==ref[j])
+            {
+                notfound=0;
+                optindex[i]=j;
+                break;
+            }
+        }
+        if(notfound==1)
+        {
+            return i;
+        }
+    }
+    int max=optindex[0];
+    for(int i=0;i<nof;i++)
+    {
+        if(max<optindex[i])
+        {
+            max=optindex[i];
+            pos=i;
+        }
+    }
+    return pos;
+}
 int main()
 {
-    int n,i;
-    float totwt=0,tott=0,avg1,avg2;
-    printf("enter the number of process");
-    scanf("%d",&n);
-    for(i=0;i<n;i++)
+    int fault;
+    int count=0;
+    int pf=0,victim=-1;
+    printf("enter number of pages referencing string:");
+    scanf("%d",&nor);
+    printf("enter number of frames:");
+    scanf("%d",&nof);
+    printf("enter the reference string:");
+    for(int i=0;i<nor;i++)
     {
-
-        printf("enter the bt of the process %d  :",i+1);
-        scanf("%d",&p[i].bt);
-        p[i].pno=i+1;
-
+        scanf("%d",&ref[i]);
     }
-    p[0].wt=0;
-    p[0].tt=p[0].bt+p[0].wt;
-    for(i=1;i<n;i++)
-
+    for(int i=0;i<nof;i++)
     {
-
-        p[i].wt=p[i-1].tt;
-        p[i].tt=p[i].wt+p[i].bt;
+        optindex[i]=-1;
+        fr[i]=-1;
     }
-    for(i=0;i<n;i++)
+    for(int i=0;i<nor;i++)
     {
-
-        totwt=totwt+p[i].wt;
-        tott=tott+p[i].tt;
+        fault=1;
+        printf("\n%d ->",ref[i]);
+        for(int j=0;j<nof;j++)
+        {
+            if(ref[i]==fr[j])
+            {
+                fault=0;
+                break;
+            }
+        }
+        if(fault==1)
+        {
+            count++;
+            if(count<=nof)
+            {
+                victim++;
+            }
+            else
+            {
+                victim=optimal(i);
+            }
+            pf++;
+            fr[victim]=ref[i];
+            for(int j=0;j<nof;j++)
+            {
+                printf("%4d",fr[j]);
+            }
+        }
     }
-    printf("total waiting time:%f\n",totwt);
-    printf("total turn around time:%f \n",tott);
-    avg1=(totwt/n);
-    printf("avg wt is %f \n",avg1);
-    avg2=(tott/n);
-    printf("avgtt is %f \n",avg2);
-    printf("process\tbt\twt\ttt\n");
-    for(i=0;i<n;i++)
-    {
-
-        printf("p[%d]\t%d\t%d\t%d",(i+1),p[i].bt,p[i].wt,p[i].tt);
-        printf("\n");
-    }
+    printf("\n number of page fault:%d",pf);
     return 0;
 }
